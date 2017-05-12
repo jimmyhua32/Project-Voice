@@ -296,8 +296,11 @@ screen navigation():
         style_prefix "navigation"
 
         ##xpos gui.navigation_xpos
+        ##yalign 0.9
+        ##xpos 0.5
+        ##xalign 0.5
         yalign 0.9
-        xpos 0.5
+        xpos 0.1
         xalign 0.5
 
         spacing gui.navigation_spacing
@@ -400,10 +403,16 @@ style main_menu_frame:
 
 style main_menu_vbox:
     xalign 0.5
-    xoffset 0
+    xoffset 550
     xmaximum 1200
     yalign 0.5
-    yoffset -250
+    yoffset 300
+
+    ## xalign 0.5
+    ## xoffset 0
+    ## xmaximum 1200
+    ## yalign 0.5
+    ## yoffset -250
 
 style main_menu_text:
     properties gui.text_properties("main_menu", accent=True)
