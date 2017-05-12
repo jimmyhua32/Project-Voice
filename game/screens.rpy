@@ -28,6 +28,11 @@ style gui_text:
 style button:
     properties gui.button_properties("button")
 
+
+style textbutton:
+    hover_underline True
+
+
 style button_text is gui_text:
     properties gui.text_properties("button")
     yalign 0.5
@@ -35,6 +40,7 @@ style button_text is gui_text:
 
 style label_text is gui_text:
     properties gui.text_properties("label", accent=True)
+
 
 style prompt_text is gui_text:
     properties gui.text_properties("prompt")
@@ -289,14 +295,20 @@ screen navigation():
     vbox:
         style_prefix "navigation"
 
-        xpos gui.navigation_xpos
-        yalign 0.5
+        ##xpos gui.navigation_xpos
+        yalign 0.9
+        xpos 0.5
+        xalign 0.5
 
         spacing gui.navigation_spacing
 
         if main_menu:
 
-            textbutton _("Start") action Start()
+            textbutton _("Start game") action Start()
+            textbutton _("Load") action ShowMenu("load")
+
+            textbutton _("Settings") action ShowMenu("preferences")
+            textbutton _("About") action ShowMenu("about")
 
         else:
 
@@ -304,19 +316,21 @@ screen navigation():
 
             textbutton _("Save") action ShowMenu("save")
 
-        textbutton _("Load") action ShowMenu("load")
 
-        textbutton _("Preferences") action ShowMenu("preferences")
 
         if _in_replay:
 
             textbutton _("End Replay") action EndReplay(confirm=True)
 
         elif not main_menu:
+            yalign 0.5
+            xpos 0.09
+            textbutton _("Load") action ShowMenu("load")
 
+            textbutton _("Settings") action ShowMenu("preferences")
             textbutton _("Main Menu") action MainMenu()
 
-        textbutton _("About") action ShowMenu("about")
+        ## textbutton _("About") action ShowMenu("about")
 
         if renpy.variant("pc"):
 
@@ -359,6 +373,7 @@ screen main_menu():
 
     ## The use statement includes another screen inside this one. The actual
     ## contents of the main menu are in the navigation screen.
+    ## [config.name!t]
     use navigation
 
     if gui.show_name:
@@ -381,20 +396,22 @@ style main_menu_frame:
     xsize 420
     yfill True
 
-    background "gui/overlay/main_menu.png"
+    ##background "gui/overlay/main_menu.png"
 
 style main_menu_vbox:
-    xalign 1.0
-    xoffset -30
+    xalign 0.5
+    xoffset 0
     xmaximum 1200
-    yalign 1.0
-    yoffset -30
+    yalign 0.5
+    yoffset -250
 
 style main_menu_text:
     properties gui.text_properties("main_menu", accent=True)
 
+
 style main_menu_title:
     properties gui.text_properties("title")
+    color gui.title_color
 
 style main_menu_version:
     properties gui.text_properties("version")
@@ -411,66 +428,66 @@ style main_menu_version:
 
 screen game_menu(title, scroll=None):
 
-    style_prefix "game_menu"
+        style_prefix "game_menu"
 
-    if main_menu:
-        add gui.main_menu_background
-    else:
-        add gui.game_menu_background
+        if main_menu:
+            add gui.main_menu_background
+        else:
+            add gui.game_menu_background
 
-    frame:
-        style "game_menu_outer_frame"
+        frame:
+            style "game_menu_outer_frame"
 
-        hbox:
+            hbox:
 
-            ## Reserve space for the navigation section.
-            frame:
-                style "game_menu_navigation_frame"
+                ## Reserve space for the navigation section.
+                frame:
+                    style "game_menu_navigation_frame"
 
-            frame:
-                style "game_menu_content_frame"
+                frame:
+                    style "game_menu_content_frame"
 
-                if scroll == "viewport":
+                    if scroll == "viewport":
 
-                    viewport:
-                        scrollbars "vertical"
-                        mousewheel True
-                        draggable True
+                        viewport:
+                            scrollbars "vertical"
+                            mousewheel True
+                            draggable True
 
-                        side_yfill True
+                            side_yfill True
 
-                        vbox:
+                            vbox:
+                                transclude
+
+                    elif scroll == "vpgrid":
+
+                        vpgrid:
+                            cols 1
+                            yinitial 1.0
+
+                            scrollbars "vertical"
+                            mousewheel True
+                            draggable True
+
+                            side_yfill True
+
                             transclude
 
-                elif scroll == "vpgrid":
-
-                    vpgrid:
-                        cols 1
-                        yinitial 1.0
-
-                        scrollbars "vertical"
-                        mousewheel True
-                        draggable True
-
-                        side_yfill True
+                    else:
 
                         transclude
 
-                else:
 
-                    transclude
 
-    use navigation
+        textbutton _("Return"):
+            style "return_button"
 
-    textbutton _("Return"):
-        style "return_button"
+            action Return()
 
-        action Return()
+        label title
 
-    label title
-
-    if main_menu:
-        key "game_menu" action ShowMenu("main_menu")
+        if main_menu:
+            key "game_menu" action ShowMenu("main_menu")
 
 
 style game_menu_outer_frame is empty
@@ -489,6 +506,7 @@ style return_button_text is navigation_button_text
 style game_menu_outer_frame:
     bottom_padding 45
     top_padding 180
+
 
     background "gui/overlay/game_menu.png"
 
@@ -531,7 +549,7 @@ style return_button:
 ##
 ## There's nothing special about this screen, and hence it also serves as an
 ## example of how to make a custom screen.
-
+## Mark: About
 screen about():
 
     tag menu
@@ -539,7 +557,7 @@ screen about():
     ## This use statement includes the game_menu screen inside this one. The
     ## vbox child is then included inside the viewport inside the game_menu
     ## screen.
-    use game_menu(_("About"), scroll="viewport"):
+    use game_menu(_("about"), scroll="viewport"):
 
         style_prefix "about"
 
@@ -575,21 +593,24 @@ style about_label_text:
 ##
 ## https://www.renpy.org/doc/html/screen_special.html#save https://
 ## www.renpy.org/doc/html/screen_special.html#load
-
+## Mark: Save
 screen save():
 
     tag menu
 
-    use file_slots(_("Save"))
+    use file_slots(_("Paused"))
+    use navigation
 
-
+## Mark: Load
 screen load():
 
     tag menu
 
+
+
     use file_slots(_("Load"))
 
-
+## Mark: Save Game Slots
 screen file_slots(title):
 
     default page_name_value = FilePageNameInputValue(pattern=_("Page {}"), auto=_("Automatic saves"), quick=_("Quick saves"))
@@ -714,7 +735,7 @@ screen preferences():
     else:
         $ cols = 4
 
-    use game_menu(_("Preferences"), scroll="viewport"):
+    use game_menu(_("Settings"), scroll="viewport"):
 
         vbox:
 
@@ -725,8 +746,8 @@ screen preferences():
 
                     vbox:
                         style_prefix "radio"
-                        label _("Display")
-                        textbutton _("Window") action Preference("display", "window")
+                        label _("Display mode")
+                        textbutton _("Windowed") action Preference("display", "window")
                         textbutton _("Fullscreen") action Preference("display", "fullscreen")
 
                 vbox:
@@ -877,6 +898,7 @@ style slider_vbox:
 ##
 ## https://www.renpy.org/doc/html/history.html
 
+## Mark: History
 screen history():
 
     tag menu
@@ -958,6 +980,8 @@ style history_label_text:
 ## A screen that gives information about key and mouse bindings. It uses other
 ## screens (keyboard_help, mouse_help, and gamepad_help) to display the actual
 ## help.
+
+## Mark: Help
 
 screen help():
 
@@ -1114,7 +1138,7 @@ style help_label_text:
 ################################################################################
 ## Additional screens
 ################################################################################
-
+## Mark: Additional Shit
 
 ## Confirm screen ##############################################################
 ##
@@ -1455,7 +1479,3 @@ style slider_pref_vbox:
 style slider_pref_slider:
     variant "small"
     xsize 900
-
-
-
-
