@@ -1,4 +1,9 @@
 errors.txt
 log.txt
-saves/
-*.save
+game/saves/
+*.*
+game/
+*.rpyc
+*.pyc
+cache/
+*.rpyb
